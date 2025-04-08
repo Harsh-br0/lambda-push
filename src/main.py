@@ -42,7 +42,15 @@ def parse_arguments():
 
     args = parser.parse_args()
 
-    if not args.setup and not args.function_name:
+    # Strip whitespace from function_name if it exists
+    if args.function_name:
+        args.function_name = args.function_name.strip()
+
+    # Strip whitespace from include patterns if they exist
+    if args.include:
+        args.include = [pattern.strip() for pattern in args.include]
+
+    if not (args.setup or args.function_name):
         parser.error("function_name is required unless --setup is specified")
 
     return args

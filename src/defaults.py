@@ -1,6 +1,6 @@
 from pathlib import Path
 
-VALID_FILE_PATTERN = "**/**.py"
+VALID_FILE_PATTERN = "**/*.py"
 ZIP_FILE_NAME = "code.zip"
 
 

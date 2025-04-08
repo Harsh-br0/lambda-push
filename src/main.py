@@ -135,11 +135,11 @@ def main():
         print("No deployment was made to AWS Lambda.")
 
     else:
-        if safe_input(f"\nSure to deploy {args.function_name}? (y/n): ", False).lower() == "y":
-            with tempfile.TemporaryDirectory() as temp_dir:
-                temp_dir_path = Path(temp_dir)
-                zip_path = create_zip_from_paths(temp_dir_path / ZIP_FILE_NAME, all_files)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir_path = Path(temp_dir)
+            zip_path = create_zip_from_paths(temp_dir_path / ZIP_FILE_NAME, all_files)
 
+            if safe_input(f"\nSure to deploy {args.function_name}? (y/n): ", False).lower() == "y":
                 print(f"Updating Lambda function: {args.function_name}")
                 update_lambda_function_code(session, args.function_name, zip_path)
 

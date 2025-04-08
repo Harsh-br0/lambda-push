@@ -62,11 +62,11 @@ def create_zip_from_paths(output_zip_path, file_paths, base_dir=None):
                     zipf.write(file_path, arcname=str(relative_path))
 
                 except ValueError:
-                    # If file is not relative to base_dir, just use the filename
-                    zipf.write(file_path, arcname=file_path.name)
                     print(
                         f"Warning: {file_path} is not relative to {base_dir}, using filename only"
                     )
+                    # If file is not relative to base_dir, just use the filename
+                    zipf.write(file_path, arcname=file_path.name)
             else:
                 print(f"Warning: {file_path} is not a file or doesn't exist")
 

@@ -150,7 +150,7 @@ def validate_creds(
             return None
 
         # If we get here, basic credential checking passed
-        print("Credentials found in the environment:")
+        print("\nCredentials found in the environment:")
         print(f"Access Key ID: {credentials.access_key[:5]}...")
         print(f"Region: {region}")
 
@@ -165,6 +165,7 @@ def validate_creds(
             print(f"ARN: {response['Arn']}")
             print(f"UserId: {response['UserId']}")
             return session
+
         except ClientError as e:
             print(f"\nCredentials found but failed validation with AWS: {e}")
             return None
@@ -200,7 +201,6 @@ def update_lambda_function_code(session, function_name, zip_file_path):
             FunctionName=function_name, ZipFile=zip_content
         )
 
-        print(f"Lambda function {function_name} updated successfully!")
         return response
 
     except Exception as e:

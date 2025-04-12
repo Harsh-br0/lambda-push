@@ -4,7 +4,13 @@ from pathlib import Path
 
 from .aws_utils import setup_aws_credentials, update_lambda_function_code, validate_creds
 from .defaults import VALID_FILE_PATTERN, ZIP_FILE_NAME
-from .utils import create_zip_from_paths, list_matching_files, safe_input
+from .utils import (
+    create_zip_from_paths,
+    human_readable_size,
+    list_matching_files,
+    list_zip_contents,
+    safe_input,
+)
 
 
 def parse_arguments():
@@ -71,7 +77,7 @@ def handle_setup():
         return
 
     # Validate the credentials before saving
-    print("Validating credentials...")
+    print("\nValidating credentials...")
     session = validate_creds(
         aws_access_key_id=aws_access_key,
         aws_secret_access_key=aws_secret_key,
@@ -80,6 +86,7 @@ def handle_setup():
 
     if session:
         # Save credentials only after successful validation
+        print("\nSaving Credentials...")
         setup_aws_credentials(
             access_key=aws_access_key,
             secret_key=aws_secret_key,
@@ -88,6 +95,40 @@ def handle_setup():
         print("AWS credentials validated and saved successfully.")
     else:
         print("Failed to validate AWS credentials. Please check your input and try again.")
+
+
+def print_zip_contents(zip_path):
+    """
+    Print the contents of a ZIP file with aligned size information.
+
+    Args:
+        zip_path (Path): Path to the ZIP file
+    """
+
+    zip_contents = list_zip_contents(zip_path)
+
+    if not zip_contents:
+        print("\nZIP file is empty or could not be read.")
+        return
+
+    # Find the longest filename for alignment
+    max_name_length = 0
+
+    for info in zip_contents:
+        max_name_length = max(len(info.filename), max_name_length)
+
+    max_name_length += 2  # keep some space between them
+
+    total_size = 0
+    print(f"\nContents of the ZIP file ({len(zip_contents)} files):")
+    for info in zip_contents:
+        size_str = human_readable_size(info.file_size)
+        print(f"  - {info.filename.ljust(max_name_length)} ( {size_str} )")
+
+        total_size += info.file_size
+
+    # Print total size
+    print(f"\n  Total size: {human_readable_size(total_size)}")
 
 
 def main():
@@ -99,12 +140,12 @@ def main():
         return
 
     operation_mode = "Packaging" if args.dry else "Deploying"
-    print(f"{operation_mode} code for Lambda function: {args.function_name}")
+    print(f"\n{operation_mode} code for Lambda function: {args.function_name}")
 
     # Determine which patterns to use for finding files
     patterns = args.include if args.include else [VALID_FILE_PATTERN]
 
-    print(f"Using file patterns: {patterns}")
+    print(f"\nUsing file patterns: {patterns}")
 
     # Collect all matching files
     all_files = []
@@ -139,9 +180,12 @@ def main():
             temp_dir_path = Path(temp_dir)
             zip_path = create_zip_from_paths(temp_dir_path / ZIP_FILE_NAME, all_files)
 
+            print_zip_contents(zip_path)
+
             if safe_input(f"\nSure to deploy {args.function_name}? (y/n): ", False).lower() == "y":
                 print(f"Updating Lambda function: {args.function_name}")
                 update_lambda_function_code(session, args.function_name, zip_path)
+                print(f"Lambda function {args.function_name} updated successfully!")
 
 
 if __name__ == "__main__":

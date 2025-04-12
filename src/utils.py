@@ -84,3 +84,55 @@ def safe_input(prompt, cannot_be_empty=True):
             return value
         except KeyboardInterrupt:
             exit(0)
+
+
+def human_readable_size(size_bytes):
+    """
+    Convert a size in bytes to a human-readable string.
+
+    Args:
+        size_bytes (int): Size in bytes
+
+    Returns:
+        str: Human-readable size string (e.g., "2.5 KB", "1.2 MB")
+    """
+    KB = 1024
+    MB = KB * 1024
+
+    unit = ""
+    size = 0
+
+    if size_bytes < KB:
+        unit = "bytes"
+        size = size_bytes
+
+    elif size_bytes < MB:
+        unit = "KB"
+        size = size_bytes / KB
+
+    else:
+        unit = "MB"
+        size = size_bytes / MB
+
+    size = f"{size:.1f}".rstrip("0").rstrip(".")
+
+    return f"{size.ljust(4)} {unit.ljust(5)}"
+
+
+def list_zip_contents(zip_path):
+    """
+    Get information about all files contained within a ZIP archive.
+
+    Args:
+        zip_path (str or Path): Path to the ZIP file
+
+    Returns:
+        list: A list of ZipInfo objects for each file in the ZIP
+    """
+
+    zip_path = Path(zip_path)
+    if not zip_path.exists():
+        return []
+
+    with zipfile.ZipFile(zip_path, "r") as zipf:
+        return zipf.infolist()

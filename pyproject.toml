@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lambda-push"
-version = "0.2.1"
+version = "0.2.2"
 description = "Quickly package and deploy Python files to AWS Lambda functions"
 authors = [
     {name = "Harsh"}

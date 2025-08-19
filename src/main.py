@@ -28,6 +28,7 @@ def parse_arguments():
     # Optional argument for include patterns, can be specified multiple times
     parser.add_argument(
         "--include",
+        "-i",
         action="append",
         help="Glob pattern to include files (can be used multiple times). "
         "Example: --include '*.py' --include 'modules/**/*.py'",
@@ -36,6 +37,7 @@ def parse_arguments():
     # Dry run flag - create ZIP file without deploying
     parser.add_argument(
         "--dry",
+        "-d",
         action="store_true",
         help="Dry run mode: create the ZIP file but don't deploy to Lambda",
     )
@@ -48,6 +50,7 @@ def parse_arguments():
 
     parser.add_argument(
         "--profile",
+        "-p",
         help="Pick creds from a different profile to deploy lambda function, "
         f"default: {DEFAULT_PROFILE}",
         default=DEFAULT_PROFILE,

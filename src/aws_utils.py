@@ -3,9 +3,14 @@ import os
 from pathlib import Path
 
 import boto3
-from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
+from botocore.exceptions import (
+    ClientError,
+    NoCredentialsError,
+    PartialCredentialsError,
+    ProfileNotFound,
+)
 
-from .defaults import aws_dir
+from .defaults import DEFAULT_PROFILE, aws_dir
 
 
 def setup_aws_credentials(
@@ -14,11 +19,11 @@ def setup_aws_credentials(
     session_token=None,
     region=None,
     output_format="json",
-    profile="default",
+    profile=DEFAULT_PROFILE,
     config_location=None,
     credentials_location=None,
 ):
-    """
+    f"""
     Set up AWS credentials and configuration for boto3 and AWS CLI.
 
     Args:
@@ -27,7 +32,7 @@ def setup_aws_credentials(
         session_token (str, optional): AWS session token (for temporary credentials)
         region (str, optional): AWS region (e.g., 'us-east-1')
         output_format (str, optional): Output format for AWS CLI (json, text, table)
-        profile (str, optional): AWS profile name, defaults to 'default'
+        profile (str, optional): AWS profile name, defaults to '{DEFAULT_PROFILE}'
         config_location (str, optional): Custom location for config file
         credentials_location (str, optional): Custom location for credentials file
 
@@ -116,6 +121,7 @@ def validate_creds(
     aws_access_key_id=None,
     aws_secret_access_key=None,
     region_name=None,
+    profile_name=None,
 ):
     try:
         # Create a boto3 session which will automatically look for credentials
@@ -124,6 +130,7 @@ def validate_creds(
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
             region_name=region_name,
+            profile_name=profile_name,
         )
 
         # Get the credentials object
@@ -169,6 +176,16 @@ def validate_creds(
         except ClientError as e:
             print(f"\nCredentials found but failed validation with AWS: {e}")
             return None
+
+    except ProfileNotFound:
+        if profile_name == DEFAULT_PROFILE:
+            print("\nRun --setup first to initialize credentials...")
+            return None
+
+        print(
+            f"\nThe profile ({profile_name}) couldn't be found, Make sure it exists in config files"
+        )
+        return None
 
     except (NoCredentialsError, PartialCredentialsError) as e:
         print(f"Credential error: {e}")

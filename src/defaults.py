@@ -1,5 +1,6 @@
 from pathlib import Path
 
+DEFAULT_PROFILE = "lambda_push"
 VALID_FILE_PATTERN = "**/*.py"
 ZIP_FILE_NAME = "code.zip"
 

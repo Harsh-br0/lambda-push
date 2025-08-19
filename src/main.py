@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 
 from .aws_utils import setup_aws_credentials, update_lambda_function_code, validate_creds
-from .defaults import VALID_FILE_PATTERN, ZIP_FILE_NAME
+from .defaults import DEFAULT_PROFILE, VALID_FILE_PATTERN, ZIP_FILE_NAME
 from .utils import (
     create_zip_from_paths,
     human_readable_size,
@@ -44,6 +44,14 @@ def parse_arguments():
         "--setup",
         action="store_true",
         help="Setup AWS Creds to deploy lambda function",
+    )
+
+    parser.add_argument(
+        "--profile",
+        help="Pick creds from a different profile to deploy lambda function, "
+        f"default: {DEFAULT_PROFILE}",
+        default=DEFAULT_PROFILE,
+        type=str.strip,
     )
 
     args = parser.parse_args()
@@ -160,32 +168,31 @@ def main():
 
     print(f"Total files to package: {len(all_files)}")
 
-    # Validate AWS credentials after confirming we have files to deploy
-    session = None
-    if not args.dry:
-        print("\nValidating AWS credentials...")
-        session = validate_creds()
-        if not session:
-            print("Failed to validate AWS credentials. Deployment aborted.")
-            exit(1)
-
     # Create the ZIP file - use cwd for dry run, temp dir otherwise
     if args.dry:
         zip_path = create_zip_from_paths(f"{args.function_name}.zip", all_files)
         print(f"\nDry run completed. ZIP file created at: {zip_path}")
         print("No deployment was made to AWS Lambda.")
+        return
 
-    else:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_dir_path = Path(temp_dir)
-            zip_path = create_zip_from_paths(temp_dir_path / ZIP_FILE_NAME, all_files)
+    # Validate AWS credentials after confirming we have files to deploy
+    session = None
+    print(f"\nValidating AWS credentials ({args.profile}) ...")
+    session = validate_creds(profile_name=args.profile)
+    if not session:
+        print("Failed to validate AWS credentials. Deployment aborted.")
+        exit(1)
 
-            print_zip_contents(zip_path)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+        zip_path = create_zip_from_paths(temp_dir_path / ZIP_FILE_NAME, all_files)
 
-            if safe_input(f"\nSure to deploy {args.function_name}? (y/n): ", False).lower() == "y":
-                print(f"Updating Lambda function: {args.function_name}")
-                update_lambda_function_code(session, args.function_name, zip_path)
-                print(f"Lambda function {args.function_name} updated successfully!")
+        print_zip_contents(zip_path)
+
+        if safe_input(f"\nSure to deploy {args.function_name}? (y/n): ", False).lower() == "y":
+            print(f"Updating Lambda function: {args.function_name}")
+            update_lambda_function_code(session, args.function_name, zip_path)
+            print(f"Lambda function {args.function_name} updated successfully!")
 
 
 if __name__ == "__main__":

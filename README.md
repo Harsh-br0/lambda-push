@@ -14,7 +14,7 @@ pip install -U git+https://github.com/harsh-br0/lambda-push
 
 - **Simple deployment**: Package and deploy Python files to Lambda with a single command
 - **Customizable file selection**: Include specific files using glob patterns
-- **Credential management**: Built-in AWS credential setup and validation
+- **Credential management**: Built-in AWS credential setup and validation with profiles
 - **Dry run mode**: Create deployment packages without uploading to AWS
 
 ## Usage
@@ -56,8 +56,9 @@ lambda-push --setup
 | Argument | Description |
 |----------|-------------|
 | `function_name` | Name of the AWS Lambda function to update |
-| `--include PATTERN` | Glob pattern to include files (can be used multiple times) |
-| `--dry` | Create the ZIP file without deploying to Lambda |
+| `-i`,`--include PATTERN` | Glob pattern to include files (can be used multiple times) |
+| `-d`,`--dry` | Create the ZIP file without deploying to Lambda |
+| `-p`,`--profile` | Select specific AWS profile |
 | `--setup` | Configure AWS credentials |
 
 ## Examples

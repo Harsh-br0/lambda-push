@@ -3,6 +3,10 @@
 
 A streamlined CLI utility for packaging and deploying Python code to AWS Lambda functions.
 
+<center>
+    <img src="assets/sample.png" alt="Demo Output" style="width: 600">
+</center>
+
 
 ## Installation
 

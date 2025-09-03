@@ -62,7 +62,7 @@ lambda-push --setup
 | `function_name` | Name of the AWS Lambda function to update |
 | `-i`,`--include PATTERN` | Glob pattern to include files (can be used multiple times) |
 | `-d`,`--dry` | Create the ZIP file without deploying to Lambda |
-| `-p`,`--profile` | Select specific AWS profile |
+| `-p`,`--profile` | Select specific AWS profile (_default_: lambda_push) |
 | `--setup` | Configure AWS credentials |
 
 ## Examples
@@ -86,7 +86,7 @@ lambda-push my-function --dry
 The tool requires properly configured AWS credentials with permissions to update Lambda functions. You can set up credentials using:
 
 1. The `--setup` flag which guides you through the process
-2. AWS CLI's `aws configure` command
+2. AWS CLI's `aws configure` command (_Make sure to use `lambda_push` profile_)
 3. Environment variables
 4. AWS credentials file
 
